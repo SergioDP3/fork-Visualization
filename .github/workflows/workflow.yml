@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-analyze:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -23,16 +23,18 @@ jobs:
       # Clona el repositorio
       - name: Check out repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Para un análisis completo en SonarCloud
 
-      # Configura Java 8
-      - name: Set up JDK
+      # Configura Java 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '8' # Usa '8' en lugar de '1.8'
-          distribution: 'temurin'
+          java-version: 17
+          distribution: 'zulu'
           cache: maven
       
-           # Set up PostgreSQL
+      # Set up PostgreSQL
       - name: Wait for PostgreSQL to be ready
         run: |
           while ! pg_isready -h localhost -p 5432 -U postgres; do
@@ -96,6 +98,33 @@ jobs:
         run: |
             cd User
             mvn spring-boot:run &  
+
+    # Análisis de SonarCloud para el microservicio Visualization.
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run SonarCloud analysis for Visualization
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd Visualization
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=SergioDP3_fork-Visualization \
+            -Dsonar.organization=sergiodp3-1 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
                 
      # Paso 5: Instalar Node.js (para usar Newman)
       - name: Set up Node.js
