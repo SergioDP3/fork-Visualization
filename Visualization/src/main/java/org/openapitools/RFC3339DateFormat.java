@@ -31,8 +31,4 @@ public class RFC3339DateFormat extends DateFormat {
     return fmt.format(date, toAppendTo, fieldPosition);
   }
 
-  @Override
-  public Object clone() {
-    return this;
-  }
 }
