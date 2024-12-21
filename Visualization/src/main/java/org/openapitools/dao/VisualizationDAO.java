@@ -16,14 +16,19 @@ import javax.sql.DataSource;
 import org.openapitools.model.OpcionesVisualizacion;
 import org.openapitools.model.Visualizacion;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Repository
 public class VisualizationDAO {
 	private final DataSource dataSource;
+	private static final String GET_OPTIONS_FILM = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND filmID = ?";
+	private static final String GET_OPTIONS_SERIE = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND serieID = ?";
+	private static final String STRING_VIENDO = "Viendo";
+	private static final String STRING_REPRODUCIENDO = "Reproduciendo";
+	private static final String STRING_VISUALIZATION_ID = "visualizationID";
+	private static final String STRING_ESTADO = "estado";
+	private static final String STRING_IDIOMA = "idioma";
+	private static final String STRING_SUBTITULOS = "subtitulos";
 	
 	@Autowired
     public VisualizationDAO(DataSource dataSource) {
@@ -33,8 +38,7 @@ public class VisualizationDAO {
 	public OpcionesVisualizacion playFilm (int userID,int filmID) {
 		String verificacion = "SELECT COUNT(*) FROM visualizations WHERE userID=? AND filmID=?";
 		String playAgain = "UPDATE visualizations SET progreso=?, estado=? WHERE userID=? AND filmID=?";
-		String setVisualization = "INSERT INTO visualizations (userID,filmID,visualizationDate,progreso,estado,idioma,subtitulos) VALUES (?,?,?,?,?,?,?)";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND filmID = ?";
+		String setVisualization = "INSERT INTO visualizations (userID,filmID,visualizationDate,progreso,estado,idioma,subtitulos) VALUES (?,?,?,?,?,?,?)";	
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -62,11 +66,11 @@ public class VisualizationDAO {
 				preparedStatement.setInt(1, userID);
 		        preparedStatement.setInt(2, filmID); 
 		        preparedStatement.setTimestamp(3, visualizationDate); 
-		        preparedStatement.setString(4, "Viendo");
-		        preparedStatement.setString(5, "Reproduciendo");
+		        preparedStatement.setString(4, STRING_VIENDO);
+		        preparedStatement.setString(5, STRING_REPRODUCIENDO);
 		        preparedStatement.setString(6, "Español");
 		        preparedStatement.setBoolean(7, false);
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
@@ -76,11 +80,11 @@ public class VisualizationDAO {
 		else {
 			try (Connection connection = dataSource.getConnection(); // Obtener conexión
 			        PreparedStatement preparedStatement4 = connection.prepareStatement(playAgain)) {
-					preparedStatement4.setString(1, "Viendo");
-					preparedStatement4.setString(2, "Reproduciendo");
+					preparedStatement4.setString(1, STRING_VIENDO);
+					preparedStatement4.setString(2, STRING_REPRODUCIENDO);
 			        preparedStatement4.setInt(3, userID); 
 			        preparedStatement4.setInt(4, filmID); 
-			        int rowsAffected = preparedStatement4.executeUpdate();
+			        preparedStatement4.executeUpdate();
 			        
 			    } catch (SQLException e) {
 			        e.printStackTrace(); // Manejo de excepciones
@@ -88,17 +92,17 @@ public class VisualizationDAO {
 		}
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_FILM)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, filmID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -113,7 +117,6 @@ public class VisualizationDAO {
 		String verificacion = "SELECT COUNT(*) FROM visualizations WHERE userID=? AND serieID=?";
 		String playAgain = "UPDATE visualizations SET progreso=?, estado=? WHERE userID=? AND serieID=?";
 		String setVisualization = "INSERT INTO visualizations (userID,serieID,visualizationDate,progreso,estado,idioma,subtitulos) VALUES (?,?,?,?,?,?,?)";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND serieID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -141,11 +144,11 @@ public class VisualizationDAO {
 				preparedStatement.setInt(1, userID);
 		        preparedStatement.setInt(2, serieID); 
 		        preparedStatement.setTimestamp(3, visualizationDate); 
-		        preparedStatement.setString(4, "Viendo");
-		        preparedStatement.setString(5, "Reproduciendo");
+		        preparedStatement.setString(4, STRING_VIENDO);
+		        preparedStatement.setString(5, STRING_REPRODUCIENDO);
 		        preparedStatement.setString(6, "Español");
 		        preparedStatement.setBoolean(7, false);
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
@@ -155,11 +158,11 @@ public class VisualizationDAO {
 		else {
 			try (Connection connection = dataSource.getConnection(); // Obtener conexión
 			        PreparedStatement preparedStatement4 = connection.prepareStatement(playAgain)) {
-					preparedStatement4.setString(1, "Viendo");
-					preparedStatement4.setString(2, "Reproduciendo");
+					preparedStatement4.setString(1, STRING_VIENDO);
+					preparedStatement4.setString(2, STRING_REPRODUCIENDO);
 			        preparedStatement4.setInt(3, userID); 
 			        preparedStatement4.setInt(4, serieID); 
-			        int rowsAffected = preparedStatement4.executeUpdate();
+			        preparedStatement4.executeUpdate();
 			        
 			    } catch (SQLException e) {
 			        e.printStackTrace(); // Manejo de excepciones
@@ -167,17 +170,17 @@ public class VisualizationDAO {
 		}
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_SERIE)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, serieID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -190,7 +193,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changePauseFilm (int userID,int filmID, String estado) {
 		String updateVisualization = "UPDATE visualizations SET estado = ? WHERE userID = ? AND filmID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND filmID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -199,24 +201,24 @@ public class VisualizationDAO {
 				preparedStatement.setString(1, estado);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, filmID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_FILM)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, filmID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -229,7 +231,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changePauseSerie (int userID,int serieID, String estado) {
 		String updateVisualization = "UPDATE visualizations SET estado = ? WHERE userID = ? AND serieID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND serieID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -238,24 +239,24 @@ public class VisualizationDAO {
 				preparedStatement.setString(1, estado);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, serieID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_SERIE)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, serieID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -269,8 +270,6 @@ public class VisualizationDAO {
 	public boolean endFilm (int userID,int filmID) {
 		String updateVisualization = "UPDATE visualizations SET progreso = ? WHERE userID = ? AND filmID = ?";
 		boolean result = false;
-		
-		OpcionesVisualizacion opciones = null;
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
 		        PreparedStatement preparedStatement = connection.prepareStatement(updateVisualization)) {
@@ -291,8 +290,6 @@ public class VisualizationDAO {
 		String updateVisualization = "UPDATE visualizations SET progreso = ? WHERE userID = ? AND serieID = ?";
 		boolean result = false;
 		
-		OpcionesVisualizacion opciones = null;
-		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
 		        PreparedStatement preparedStatement = connection.prepareStatement(updateVisualization)) {
 				preparedStatement.setString(1, "Finalizado");
@@ -310,7 +307,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changeLanguageFilm (int userID,int filmID, String language) {
 		String updateVisualization = "UPDATE visualizations SET idioma = ? WHERE userID = ? AND filmID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND filmID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -319,24 +315,24 @@ public class VisualizationDAO {
 				preparedStatement.setString(1, language);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, filmID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_FILM)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, filmID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -349,7 +345,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changeLanguageSerie (int userID,int serieID, String language) {
 		String updateVisualization = "UPDATE visualizations SET idioma = ? WHERE userID = ? AND serieID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND serieID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -358,24 +353,24 @@ public class VisualizationDAO {
 				preparedStatement.setString(1, language);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, serieID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_SERIE)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, serieID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -388,7 +383,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changeSubtitlesFilm (int userID,int filmID, boolean subtitle) {
 		String updateVisualization = "UPDATE visualizations SET subtitulos = ? WHERE userID = ? AND filmID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND filmID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -397,24 +391,24 @@ public class VisualizationDAO {
 				preparedStatement.setBoolean(1, subtitle);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, filmID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_FILM)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, filmID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -427,7 +421,6 @@ public class VisualizationDAO {
 
 	public OpcionesVisualizacion changeSubtitlesSerie (int userID,int serieID, boolean subtitle) {
 		String updateVisualization = "UPDATE visualizations SET subtitulos = ? WHERE userID = ? AND serieID = ?";
-		String getOptions = "SELECT visualizationID,estado,idioma,subtitulos FROM visualizations WHERE userID = ? AND serieID = ?";
 		
 		OpcionesVisualizacion opciones = null;
 		
@@ -436,24 +429,24 @@ public class VisualizationDAO {
 				preparedStatement.setBoolean(1, subtitle);
 		        preparedStatement.setInt(2, userID); 
 		        preparedStatement.setInt(3, serieID); 
-		        int rowsAffected = preparedStatement.executeUpdate();
+		        preparedStatement.executeUpdate();
 		        
 		    } catch (SQLException e) {
 		        e.printStackTrace(); // Manejo de excepciones
 		    }
 		
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
-		        PreparedStatement preparedStatement2 = connection.prepareStatement(getOptions)) {
+		        PreparedStatement preparedStatement2 = connection.prepareStatement(GET_OPTIONS_SERIE)) {
 		        preparedStatement2.setInt(1, userID); 
 		        preparedStatement2.setInt(2, serieID); 
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        if (resultSet.next()) {
 		        	 opciones = new OpcionesVisualizacion(
-			                resultSet.getInt("visualizationID"),
-			                resultSet.getString("estado"),
-			                resultSet.getString("idioma"),
-			                resultSet.getBoolean("subtitulos")
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
+			                resultSet.getString(STRING_ESTADO),
+			                resultSet.getString(STRING_IDIOMA),
+			                resultSet.getBoolean(STRING_SUBTITULOS)
 			            );
 		        }
 		        
@@ -471,12 +464,12 @@ public class VisualizationDAO {
 		try (Connection connection = dataSource.getConnection(); // Obtener conexión
 		        PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 		        preparedStatement2.setInt(1, userID); 
-		        preparedStatement2.setString(2, "Viendo");
+		        preparedStatement2.setString(2, STRING_VIENDO);
 		        ResultSet resultSet = preparedStatement2.executeQuery();
 		        
 		        while (resultSet.next()) {
 		        	 Visualizacion visual = new Visualizacion(
-			                resultSet.getInt("visualizationID"),
+			                resultSet.getInt(STRING_VISUALIZATION_ID),
 			                resultSet.getInt("userID"),
 			                resultSet.getInt("filmID"),
 			                resultSet.getInt("serieID"),
@@ -503,7 +496,7 @@ public class VisualizationDAO {
 	        ResultSet resultSet = preparedStatement.executeQuery();
 
 	        while (resultSet.next()) {
-	        	Integer visualizationID = resultSet.getInt("visualizationID");
+	        	Integer visualizationID = resultSet.getInt(STRING_VISUALIZATION_ID);
 	        	Integer userID = resultSet.getInt("userID");
 	            Integer filmID = resultSet.getInt("filmID");
 	            Integer serieID = resultSet.getInt("serieID");

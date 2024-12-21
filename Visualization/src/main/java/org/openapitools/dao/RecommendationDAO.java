@@ -33,7 +33,7 @@ public class RecommendationDAO {
         String filmServiceUrl = "http://localhost:8080/v1/content/films/genre/{genreID}";
         
         List<Recomendacion> fullList = new ArrayList<>();
-        List<Integer> preferences = new ArrayList<>();
+        List<Integer> preferences;
         
         Mono<UserData> call = webClient.get()
                 .uri(userServiceUrl)
@@ -42,7 +42,12 @@ public class RecommendationDAO {
         
         UserData user = call.block();
         
-        preferences = user.getPreferences();
+        if (user != null) {
+            preferences = user.getPreferences();
+        }
+        else {
+            throw new IllegalStateException("El objeto 'user' no debería ser nulo");
+        }
         
         List<Mono<Void>> tasks = new ArrayList<>();
 
@@ -84,7 +89,7 @@ public class RecommendationDAO {
         String serieServiceUrl = "http://localhost:8080/v1/content/series/genre/{genreID}";
         
         List<Recomendacion> fullList = new ArrayList<>();
-        List<Integer> preferences = new ArrayList<>();
+        List<Integer> preferences;
         
         Mono<UserData> call = webClient.get()
                 .uri(userServiceUrl)
@@ -93,7 +98,12 @@ public class RecommendationDAO {
         
         UserData user = call.block();
         
-        preferences = user.getPreferences();
+        if (user != null) {
+            preferences = user.getPreferences();
+        }
+        else {
+            throw new IllegalStateException("El objeto 'user' no debería ser nulo");
+        }
 
         List<Mono<Void>> tasks = new ArrayList<>();
 
